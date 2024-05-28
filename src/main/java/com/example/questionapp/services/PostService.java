@@ -1,33 +1,50 @@
 package com.example.questionapp.services;
 
+import com.example.questionapp.entities.Like;
 import com.example.questionapp.entities.Post;
 import com.example.questionapp.entities.User;
 import com.example.questionapp.repositories.PostRepository;
 import com.example.questionapp.requests.PostCreateRequest;
 import com.example.questionapp.requests.PostUpdateRequest;
+import com.example.questionapp.response.LikeResponse;
+import com.example.questionapp.response.PostResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
 
-    private PostRepository postRepository;
-    private UserService userService;
+    private final PostRepository postRepository;
+    private LikeService likeService;
+    private final UserService userService;
 
     public PostService(PostRepository postRepository, UserService userService){
         this.postRepository = postRepository;
         this.userService = userService;
     }
+    @Autowired
+    @Lazy
+    public void setLikeService(LikeService likeService){
+        this.likeService = likeService;
+    }
 
-    public List<Post> getAllPosts(Optional<Long> userId) {
+    public List<PostResponse> getAllPosts(Optional<Long> userId) {
+        List<Post> list;
         if(userId.isPresent()){
-            return postRepository.findByUserId(userId.get());
+            list = postRepository.findByUserId(userId.get());
         }
         else{
-            return postRepository.findAll();
+            list = postRepository.findAll();
         }
+        return list.stream().map(post -> {
+            List<LikeResponse> likes = likeService.getAllLikesWithParam(Optional.ofNullable(null),Optional.of(post.getId()));
+            return new PostResponse(post,likes);
+        }).collect(Collectors.toList());
     }
 
     public Post getOnePostById(Long postId) {
