@@ -13,4 +13,5 @@ public class User {
     Long id;
     String username;
     String password;
+    int avatar;
 }

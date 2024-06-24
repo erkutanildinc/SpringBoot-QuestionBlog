@@ -2,15 +2,18 @@ package com.example.questionapp.controllers;
 
 import com.example.questionapp.entities.User;
 import com.example.questionapp.repositories.UserRepository;
+import com.example.questionapp.response.UserResponse;
 import com.example.questionapp.services.UserService;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
+@CrossOrigin
 public class UserController {
 
     private UserService userService;
@@ -31,7 +34,6 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public User getOneUser(@PathVariable Long userId){
-        //custom exception ekle
         return userService.getOneUserById(userId);
     }
 
@@ -44,4 +46,7 @@ public class UserController {
     public void deleteOneUser(@PathVariable Long userId){
         userService.deleteById(userId);
     }
+
+    @GetMapping("/activity/{userId}")
+    public List<Object> getUserActivity(@PathVariable Long userId) {return userService.getUserActivity(userId);}
 }
