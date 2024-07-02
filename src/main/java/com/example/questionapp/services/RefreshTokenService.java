@@ -28,8 +28,11 @@ public class RefreshTokenService {
     }
 
     public String createRefreshToken(User user){
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setUser(user);
+        RefreshToken refreshToken = refreshTokenRepository.findByUserId(user.getId());
+        if(refreshToken == null) {
+            refreshToken =	new RefreshToken();
+            refreshToken.setUser(user);
+        }
         refreshToken.setExpyrDate(Date.from(Instant.now().plusSeconds(expireSeconds)));
         refreshToken.setToken(UUID.randomUUID().toString());
         refreshTokenRepository.save(refreshToken);
