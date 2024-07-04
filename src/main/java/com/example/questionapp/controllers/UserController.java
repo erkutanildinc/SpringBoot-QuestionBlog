@@ -1,9 +1,11 @@
 package com.example.questionapp.controllers;
 
 import com.example.questionapp.entities.User;
+import com.example.questionapp.exceptions.UserNotFoundException;
 import com.example.questionapp.repositories.UserRepository;
 import com.example.questionapp.response.UserResponse;
 import com.example.questionapp.services.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +36,11 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public User getOneUser(@PathVariable Long userId){
-        return userService.getOneUserById(userId);
+        User user = userService.getOneUserById(userId);
+        if(user==null){
+            throw new UserNotFoundException();
+        }
+        return user;
     }
 
     @PutMapping("/{userId}")
@@ -49,4 +55,11 @@ public class UserController {
 
     @GetMapping("/activity/{userId}")
     public List<Object> getUserActivity(@PathVariable Long userId) {return userService.getUserActivity(userId);}
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    private void handleUserNotFound(){
+
+    }
+
 }
